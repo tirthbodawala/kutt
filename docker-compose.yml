@@ -1,27 +1,14 @@
 version: "3"
 
 services:
-  kutt:
-    image: kutt/kutt
-    depends_on:
-      - postgres
-      - redis
-    command: ["./wait-for-it.sh", "postgres:5432", "--", "npm", "start"]
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    environment:
-      DB_HOST: postgres
-      DB_NAME: kutt
-      DB_USER: user
-      DB_PASSWORD: pass
-      REDIS_HOST: redis
-
   redis:
     image: redis:6.0-alpine
     volumes:
       - redis_data:/data
+    ports:
+      - "6479:6379"
+    expose:
+      - "6479:6379"
 
   postgres:
     image: postgres:12-alpine
@@ -31,7 +18,34 @@ services:
       POSTGRES_DB: kutt
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    expose:
+      - "5435:5432"
+  mailtrap:
+    image: mailhog/mailhog
+    depends_on:
+      - mongo
+    ports:
+      - "1028:1025"
+      - "8028:8025"
+    environment:
+      - MH_STORAGE=mongodb
+      - MH_MONGO_URI=mongo:27017
+      - MH_MONGO_DB=mailhog
+
+  mongo:
+    image: mongo # container image to be used
+    ports: # expose ports in “host:container” format
+      - 27021:27017
+    expose:
+      - 27021:27017
+    environment: #env variables to pass into the container
+       MONGODB_DATABASE: dropsend
+    volumes:
+      - mongo_data:/data/db
 
 volumes:
   redis_data:
   postgres_data:
+  mongo_data:

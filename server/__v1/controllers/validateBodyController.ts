@@ -192,7 +192,7 @@ export const urlCountsCheck = async (user: User) => {
     user_id: user.id,
     date: subDays(new Date(), 1)
   });
-  if (count > env.USER_LIMIT_PER_DAY) {
+  if (env.USER_LIMIT_PER_DAY !== -1 && count > env.USER_LIMIT_PER_DAY) {
     throw new CustomError(
       `You have reached your daily limit (${env.USER_LIMIT_PER_DAY}). Please wait 24h.`
     );
